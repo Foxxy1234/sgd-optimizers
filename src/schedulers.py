@@ -1,10 +1,13 @@
-"""Learning rate schedulers. Each scheduler is a callable: step (int) -> lr (float)."""
 from __future__ import annotations
 
 import math
 
 
-class ConstantLR:
+class Scheduler:
+    def __call__(self, step: int) -> float:
+        raise NotImplementedError
+
+class ConstantLR(Scheduler):
     def __init__(self, lr: float):
         self.lr = lr
 
@@ -12,9 +15,7 @@ class ConstantLR:
         return self.lr
 
 
-class StepDecay:
-    """lr = lr0 * gamma ** (step // step_size)."""
-
+class StepDecay(Scheduler):
     def __init__(self, lr0: float, step_size: int, gamma: float = 0.5):
         self.lr0 = lr0
         self.step_size = step_size
@@ -24,9 +25,7 @@ class StepDecay:
         return self.lr0 * (self.gamma ** (step // self.step_size))
 
 
-class ExpDecay:
-    """lr = lr0 * exp(-rate * step)."""
-
+class ExpDecay(Scheduler):
     def __init__(self, lr0: float, rate: float):
         self.lr0 = lr0
         self.rate = rate
@@ -35,9 +34,7 @@ class ExpDecay:
         return self.lr0 * math.exp(-self.rate * step)
 
 
-class InvDecay:
-    """lr = lr0 / (1 + rate * step)."""
-
+class InvDecay(Scheduler):
     def __init__(self, lr0: float, rate: float):
         self.lr0 = lr0
         self.rate = rate
@@ -46,9 +43,7 @@ class InvDecay:
         return self.lr0 / (1.0 + self.rate * step)
 
 
-class CosineWarmup:
-    """Linear warmup over `warmup` steps to lr0, then cosine decay to `lr_min` over `total`."""
-
+class CosineWarmup(Scheduler):
     def __init__(self, lr0: float, total: int, warmup: int = 0, lr_min: float = 0.0):
         self.lr0 = lr0
         self.total = total
