@@ -1,4 +1,3 @@
-"""RMSProp (Hinton, 2012). Matches torch.optim.RMSprop with default centered=False."""
 from __future__ import annotations
 
 import numpy as np

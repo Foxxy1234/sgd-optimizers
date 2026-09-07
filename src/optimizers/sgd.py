@@ -1,4 +1,3 @@
-"""Vanilla mini-batch SGD."""
 from __future__ import annotations
 
 import numpy as np

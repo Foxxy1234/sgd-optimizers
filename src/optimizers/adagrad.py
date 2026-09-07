@@ -1,4 +1,3 @@
-"""AdaGrad (Duchi et al., 2011)."""
 from __future__ import annotations
 
 import numpy as np

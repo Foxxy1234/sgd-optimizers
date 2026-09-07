@@ -1,4 +1,3 @@
-"""Heavy-ball momentum (classical Polyak momentum)."""
 from __future__ import annotations
 
 import numpy as np

@@ -1,20 +1,3 @@
-"""Lion optimizer (Chen et al., 2023): EvoLved Sign Momentum.
-
-Algorithm (one momentum buffer; no second moment, half the memory of Adam):
-
-    update = sign(beta1 * m_{t-1} + (1 - beta1) * g_t)
-    w_t    = w_{t-1} - lr * (update + weight_decay * w_{t-1})
-    m_t    = beta2 * m_{t-1} + (1 - beta2) * g_t
-
-Notes:
-- Uses TWO independent momentum coefficients: beta1 for the update direction
-  (interpolates current grad and previous momentum), beta2 for storage.
-- Update magnitude is +/- lr per coordinate (sign-based), so the effective step
-  is far larger than Adam at the same lr; typical lr ~ Adam_lr / 3..10.
-- Decoupled weight decay (AdamW-style).
-
-Paper: "Symbolic Discovery of Optimization Algorithms" (Chen et al., 2023).
-"""
 from __future__ import annotations
 
 import numpy as np

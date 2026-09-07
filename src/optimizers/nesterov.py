@@ -1,10 +1,3 @@
-"""Nesterov accelerated gradient (PyTorch flavor).
-
-PyTorch's torch.optim.SGD(..., nesterov=True) implements:
-    v <- momentum * v + g
-    w <- w - lr * (g + momentum * v)
-This is the formulation we use here for direct comparability.
-"""
 from __future__ import annotations
 
 import numpy as np

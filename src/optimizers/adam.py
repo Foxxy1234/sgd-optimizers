@@ -1,4 +1,3 @@
-"""Adam (Kingma & Ba, 2014). Matches torch.optim.Adam default formulation."""
 from __future__ import annotations
 
 import numpy as np
@@ -25,8 +24,8 @@ class Adam(Optimizer):
         if self.m is None:
             self.m = np.zeros_like(w)
             self.v = np.zeros_like(w)
-        self.t += 1
         lr = self.current_lr()
+        self.t += 1
         self.m = self.beta1 * self.m + (1.0 - self.beta1) * g
         self.v = self.beta2 * self.v + (1.0 - self.beta2) * g * g
         m_hat = self.m / (1.0 - self.beta1 ** self.t)
