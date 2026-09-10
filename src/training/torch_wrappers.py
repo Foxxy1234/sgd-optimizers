@@ -1,9 +1,6 @@
-"""Wrappers around torch.optim with the same `optimizer.step(w, g)` interface as our own.
-
-These allow apples-to-apples comparison in the same training loop. Hyperparameters
-are passed through to the underlying torch optimizer.
-"""
 from __future__ import annotations
+
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -12,9 +9,7 @@ from optimizers.base import Optimizer
 
 
 class _TorchOptWrapper(Optimizer):
-    """Generic adapter from `optimizer.step(w_np, g_np) -> w_np` to torch.optim."""
-
-    torch_cls: type
+    torch_cls: Callable[..., torch.optim.Optimizer]
     name = "torch"
 
     def __init__(self, lr: float, scheduler=None, **torch_kwargs):
@@ -23,25 +18,24 @@ class _TorchOptWrapper(Optimizer):
         self._param: torch.Tensor | None = None
         self._opt: torch.optim.Optimizer | None = None
 
-    def _ensure(self, w: np.ndarray):
-        if self._param is None or self._param.numel() != w.size:
+    def _ensure(self, w: np.ndarray) -> tuple[torch.Tensor, torch.optim.Optimizer]:
+        if self._param is None or self._opt is None or self._param.numel() != w.size:
             self._param = torch.tensor(w, dtype=torch.float64, requires_grad=True)
             self._opt = self.torch_cls([self._param], lr=self.current_lr(), **self.torch_kwargs)
         else:
             with torch.no_grad():
                 self._param.copy_(torch.from_numpy(np.asarray(w, dtype=np.float64)))
+        return self._param, self._opt
 
-    def step(self, w, g):
-        self._ensure(w)
-        # set lr from scheduler each step
-        for pg in self._opt.param_groups:
+    def step(self, w: np.ndarray, g: np.ndarray) -> np.ndarray:
+        param, opt = self._ensure(w)
+        for pg in opt.param_groups:
             pg["lr"] = self.current_lr()
-        self._opt.zero_grad()
-        # write incoming numpy grad into .grad
-        self._param.grad = torch.from_numpy(np.ascontiguousarray(g, dtype=np.float64))
-        self._opt.step()
+        opt.zero_grad()
+        param.grad = torch.from_numpy(np.ascontiguousarray(g, dtype=np.float64))
+        opt.step()
         self.t += 1
-        return self._param.detach().numpy().copy()
+        return param.detach().numpy().copy()
 
     def reset(self):
         super().reset()
@@ -73,6 +67,9 @@ class TorchNesterov(_TorchOptWrapper):
 class TorchAdaGrad(_TorchOptWrapper):
     name = "torch.Adagrad"
     torch_cls = torch.optim.Adagrad
+
+    def __init__(self, lr=0.01, eps=1e-8, scheduler=None):
+        super().__init__(lr=lr, scheduler=scheduler, eps=eps)
 
 
 class TorchRMSProp(_TorchOptWrapper):
