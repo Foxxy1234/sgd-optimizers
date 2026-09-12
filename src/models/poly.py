@@ -1,4 +1,3 @@
-"""Polynomial regression via feature expansion + LinearRegressionModel."""
 from __future__ import annotations
 
 from itertools import combinations_with_replacement
@@ -10,11 +9,6 @@ from regularizers import Regularizer
 
 
 def polynomial_features(X: np.ndarray, degree: int) -> np.ndarray:
-    """Expand X (n, d) into all monomials of total degree <= `degree`, no bias term.
-
-    For d=1 this gives [x, x^2, ..., x^degree]. For d>1 it gives all products
-    x_{i1} * x_{i2} * ... * x_{ik} with k in 1..degree.
-    """
     n, d = X.shape
     cols = []
     for k in range(1, degree + 1):
@@ -24,8 +18,6 @@ def polynomial_features(X: np.ndarray, degree: int) -> np.ndarray:
 
 
 class PolynomialRegression(LinearRegressionModel):
-    """Linear model on polynomial features. degree=1 is plain linear."""
-
     def __init__(self, degree: int = 2, regularizer: Regularizer | None = None,
                  fit_intercept: bool = True):
         super().__init__(regularizer=regularizer, fit_intercept=fit_intercept)

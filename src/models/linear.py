@@ -1,4 +1,3 @@
-"""Linear regression model with MSE loss and optional regularization."""
 from __future__ import annotations
 
 import numpy as np
@@ -7,11 +6,6 @@ from regularizers import NoReg, Regularizer
 
 
 class LinearRegressionModel:
-    """y_hat = X @ w (intercept handled by appending a column of ones to X).
-
-    Hyperparameters in the interface: regularizer.
-    """
-
     def __init__(self, regularizer: Regularizer | None = None, fit_intercept: bool = True):
         self.regularizer = regularizer or NoReg()
         self.fit_intercept = fit_intercept

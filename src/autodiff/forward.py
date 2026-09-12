@@ -1,15 +1,7 @@
-"""Forward-mode automatic differentiation via dual numbers.
-
-A Dual number carries (primal, tangent). For a scalar f written using Dual ops,
-seeding x_i with tangent=1 (others 0) gives df/dx_i in the .tangent of the result.
-
-Supports +, -, *, /, **, exp, log, sqrt and works elementwise on numpy arrays
-of Duals via Python broadcasting (slow but illustrative).
-"""
 from __future__ import annotations
 
 import math
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 
@@ -21,7 +13,6 @@ class Dual:
         self.primal = float(primal)
         self.tangent = float(tangent)
 
-    # ---- arithmetic ----
     def __add__(self, other):
         o = other if isinstance(other, Dual) else Dual(other)
         return Dual(self.primal + o.primal, self.tangent + o.tangent)
@@ -56,7 +47,6 @@ class Dual:
         return Dual(-self.primal, -self.tangent)
 
     def __pow__(self, p: float):
-        # constant exponent only (sufficient for polynomial/MSE losses)
         return Dual(self.primal ** p, p * (self.primal ** (p - 1)) * self.tangent)
 
     def __repr__(self):
@@ -83,12 +73,7 @@ def sqrt(x):
     return math.sqrt(x)
 
 
-def forward_grad(f: Callable[[np.ndarray], "Dual"], x: np.ndarray) -> np.ndarray:
-    """Compute gradient of scalar f at x using forward-mode AD.
-
-    f must be expressible in terms of Dual ops (no numpy linear algebra).
-    O(d) function evaluations (one per coordinate).
-    """
+def forward_grad(f: Callable[[np.ndarray], Dual], x: np.ndarray) -> np.ndarray:
     n = x.size
     g = np.zeros(n, dtype=np.float64)
     for i in range(n):

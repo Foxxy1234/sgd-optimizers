@@ -1,12 +1,3 @@
-"""L1 / L2 / Elastic Net regularizers.
-
-Each regularizer R(w) implements:
-    value(w) -> float
-    grad(w)  -> ndarray of shape (d,)
-
-The intercept (last weight if present) is NOT regularized by convention; the model
-passes only the non-intercept slice when needed.
-"""
 from __future__ import annotations
 
 import numpy as np
@@ -47,7 +38,6 @@ class L1(Regularizer):
         return self.lam * float(np.abs(w).sum())
 
     def grad(self, w):
-        # subgradient: sign(w); 0 at w==0
         return self.lam * np.sign(w)
 
 

@@ -1,9 +1,3 @@
-"""Soft-margin linear SVM trained with subgradient SGD.
-
-Loss:  L(w, b) = 0.5 * ||w||^2 + C * mean_i max(0, 1 - y_i (w . x_i + b)),  y_i in {-1, +1}.
-
-Hyperparameters in the interface: C, fit_intercept.
-"""
 from __future__ import annotations
 
 import numpy as np
@@ -38,8 +32,7 @@ class SoftMarginSVM:
     def grad(self, p: np.ndarray, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         w, b = self._split(p)
         scores = X @ w + b
-        active = (1.0 - y * scores) > 0  # margin violated
-        # subgradient of mean hinge
+        active = (1.0 - y * scores) > 0
         coef = -(y * active) / len(y)
         g_w = w + self.C * (X.T @ coef)
         if self.fit_intercept:
